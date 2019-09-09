@@ -7,7 +7,7 @@
 #include <random>
 
 #define RUNS 625
-#define MATRIXSIZE 3
+#define MATRIXSIZE 100
 #define PHIV 0.005
 #define R 4
 #define PINF 0.999
@@ -19,6 +19,14 @@
 
 using namespace std;
 
+double a1Global  = 0;
+double a2Global = 0;
+double a0Global = 0;
+double TGlobal = 0;
+double nothingGlobal = 0;
+double dGlobal = 0;
+double tGlobal = 0;
+
 struct Cell
 {
     string state;
@@ -26,14 +34,14 @@ struct Cell
 };
 
 int neighborsCell(Cell *lnode, int position, string state);
-void applyRules(Cell *node, int t);
-void rule1(Cell *lnode, int position, int t);
-void rule2(Cell *lnode, int position, int t);
-void rule3(Cell *lnode, int position, int t);
-void rule4(Cell *lnode, int position, int t);
-void rule5(Cell *lnode, int position, int t);
-void rule6(Cell *lnode, int position, int t);
-void finalReport(Cell *node, int t);
+void applyRules(Cell *nodeNew, Cell *nodeOld, int t);
+void rule1(Cell *lnodeOld, Cell *lnodeNew, int position, int t);
+void rule2(Cell *lnodeOld, Cell *lnodeNew, int position, int t);
+void rule3(Cell *lnodeNew, int position, int t);
+void rule4(Cell *lnodeNew, int position, int t);
+void rule5(Cell *lnodeOld, Cell *lnodeNew, int position, int t);
+void rule6(Cell *lnodeNew, int position, int t);
+void finalReport(Cell *node, int t, int i);
 
 double randomGenerator()
 {
@@ -43,32 +51,39 @@ double randomGenerator()
     return var;
 }
 
+void copyArray(Cell * a, Cell * b)
+{
+    for (int i = 0; i < MATRIXSIZE*MATRIXSIZE; i++)
+    {
+        b[i] = a [i];
+    }
+}
+
 int main()
 {
     //create matrix
-    Cell *lnode = new Cell[MATRIXSIZE * MATRIXSIZE];
+    Cell *lnodeA = new Cell[MATRIXSIZE * MATRIXSIZE];
     //start random for matrix state
-    srand(time(NULL));
+    //srand(time(NULL));
     //random to initialize the matrix
-    
-    for (int i = 0; i < MATRIXSIZE * MATRIXSIZE; i++)
+    /* for (int i = 0; i < MATRIXSIZE * MATRIXSIZE; i++)
     {
-        if (randomGenerator() <= PHIV)
+        if (i == 2)
         {
-            lnode[i] = {"A1", 0};
+            lnodeA[i] = {"A1", 0};
         }
         else
         {
-            lnode[i] = {"T", 0};
+            lnodeA[i] = {"T", 0};
         }
-    }
+    } */
 
     //initial proportion of the matrix
     int a1 = 0;
     int T = 0;
-    for (int i = 0; i < MATRIXSIZE * MATRIXSIZE; i++)
+    /* for (int i = 0; i < MATRIXSIZE * MATRIXSIZE; i++)
     {
-        if (lnode[i].state.compare("A1") == 0)
+        if (lnodeA[i].state.compare("A1") == 0)
         {
             a1++;
         }
@@ -76,21 +91,44 @@ int main()
         {
             T++;
         }
-    }
-    cout << "initial state" << endl;
+    } */
+/*     cout << "initial state" << endl;
     cout << "A1: " << a1 << endl;
-    cout << "T: " << T << endl;
+    cout << "T: " << T << endl; */
 
-    //apply rules
-    for (int i = 1; i <= RUNS; i++)
-    {
-        applyRules(lnode, i);
-        
+    Cell * lnodeB = new Cell[MATRIXSIZE * MATRIXSIZE];
+
+    copyArray(lnodeA, lnodeB);
+
+   for(int j = 0; j < 10000; j++)
+   {
+        srand(time(NULL));
+        for (int i = 1; i <= RUNS; i++)
+        {
+            for (int i = 0; i < MATRIXSIZE * MATRIXSIZE; i++)
+            {
+                if (randomGenerator() <= PHIV)
+                {
+                    lnodeA[i] = {"A1", 0};
+                }
+                else
+                {
+                    lnodeA[i] = {"T", 0};
+                }
+            }
+
+            applyRules(lnodeA, lnodeB, i);
+            copyArray(lnodeB, lnodeA);
+            // cout << lnodeB[0].state << " " << lnodeB[1].state << " " << lnodeB[2].state << " " << endl;
+            // cout << lnodeB[3].state << " " << lnodeB[4].state << " " << lnodeB[5].state << " " << endl;
+            // cout << lnodeB[6].state << " " << lnodeB[7].state << " " << lnodeB[8].state << " " << endl;
+            // cout << endl;
+        }
+        finalReport(lnodeB, RUNS, j);
     }
-    finalReport(lnode,RUNS);
-    //final report
 
-    delete[] lnode;
+    delete[] lnodeA;
+    delete[] lnodeB;
 
     return 0;
 }
@@ -157,43 +195,43 @@ int neighborsCell(Cell * lnode, int position, string state)
     return count;
 }
 
-void applyRules(Cell *lnode, int t)
+void applyRules(Cell *lnodeOld, Cell *lnodeNew, int t)
 {
     //apply rules
     for (int i = 0; i < MATRIXSIZE*MATRIXSIZE; i++)
     {
-        if (lnode[i].state == "T")
+        if (lnodeOld[i].state == "T")
         {
-            rule1(lnode, i, t);
+            rule1(lnodeOld, lnodeNew, i, t);
         }
-        else if (lnode[i].state == "A1")
+        else if (lnodeOld[i].state == "A1")
         {
-            rule2(lnode, i, t);
+            rule2(lnodeOld, lnodeNew, i, t);
         }
-        else if (lnode[i].state == "A2")
+        else if (lnodeOld[i].state == "A2")
         {
-            rule3(lnode, i, t);
+            rule3(lnodeNew, i, t);
         }
-        else if (lnode[i].state == "D")
+        else if (lnodeOld[i].state == "D")
         {
-            rule4(lnode, i, t);
+            rule4(lnodeNew, i, t);
         }
-        else if (lnode[i].state == "A0")
+        else if (lnodeOld[i].state == "A0")
         {
-            rule5(lnode, i, t);
+            rule5(lnodeOld, lnodeNew, i, t);
         }
-        else if (lnode[i].state == "0")
+        else if (lnodeOld[i].state == "0")
         {
-            rule6(lnode, i, t);
+            rule6(lnodeNew, i, t);
         }
     }
 }
 
 /*we suppose the given cell is in T state*/
-void rule1(Cell *lnode, int position, int t)
+void rule1(Cell *lnodeOld, Cell *lnodeNew, int position, int t)
 {
-    int neighborsA1 = neighborsCell(lnode, position, "A1");
-    int neighborsA2 = neighborsCell(lnode, position, "A2");
+    int neighborsA1 = neighborsCell(lnodeOld, position, "A1");
+    int neighborsA2 = neighborsCell(lnodeOld, position, "A2");
     int row = floor(position / MATRIXSIZE);
     int col = position % MATRIXSIZE;
 
@@ -205,27 +243,27 @@ void rule1(Cell *lnode, int position, int t)
         if (probability <= PINF)
         {
             //cout << "menor a pinf" << endl;
-            lnode[position].state = "A1";
-            lnode[position].lastModified = t;
+            lnodeNew[position].state = "A1";
+            lnodeNew[position].lastModified = t;
         }
         else
         {
             //cout << "mayor a pinf" << endl;
-            lnode[position].state = "A0";
-            lnode[position].lastModified = t;
+            lnodeNew[position].state = "A0";
+            lnodeNew[position].lastModified = t;
         }
     }
 }
 
 /*we suppose the given cells is in A1 state*/
-void rule2(Cell *lnode, int position, int t)
+void rule2(Cell *lnodeOld, Cell *lnodeNew, int position, int t)
 {
     //cout << "resta: " << t - lnode[position].lastModified << endl;
-    if (t - lnode[position].lastModified >= T1)
+    if (t - lnodeOld[position].lastModified >= T1)
     {
         //cout << "4" << endl;
-        lnode[position].state = "A2";
-        lnode[position].lastModified = t;
+        lnodeNew[position].state = "A2";
+        lnodeNew[position].lastModified = t;
     }
     else
     {
@@ -233,53 +271,53 @@ void rule2(Cell *lnode, int position, int t)
         if (probability <= PREM)
         {
             //cout << "0" << endl;
-            lnode[position].state = "0";
-            lnode[position].lastModified = t;
+            lnodeNew[position].state = "0";
+            lnodeNew[position].lastModified = t;
         }
     }
 }
 
 /*we suppose the given cells is in A2 state*/
-void rule3(Cell *lnode, int position, int t)
+void rule3(Cell *lnodeNew, int position, int t)
 {
-    lnode[position].state = "D";
-    lnode[position].lastModified = t;
+    lnodeNew[position].state = "D";
+    lnodeNew[position].lastModified = t;
 }
 
 /*we suppose the given cells is in D state*/
-void rule4(Cell *lnode, int position, int t)
+void rule4(Cell *lnodeNew, int position, int t)
 {
     double probability = randomGenerator();
     if (probability <= PREPL)
     {
-        lnode[position].state = "T";
-        lnode[position].lastModified = t;
+        lnodeNew[position].state = "T";
+        lnodeNew[position].lastModified = t;
     }
 }
 
 /*we suppose the given cells is in A0 state*/
-void rule5(Cell *lnode, int position, int t)
+void rule5(Cell *lnodeOld, Cell *lnodeNew, int position, int t)
 {
     //cada t2 unidades de tiempo entra
-    if (t - lnode[position].lastModified == T2){
+    if (t - lnodeOld[position].lastModified == T2){
         double probability = randomGenerator();
         if (probability <= PACT)
         {
-            lnode[position].state = "A1";
-            lnode[position].lastModified = t;
+            lnodeNew[position].state = "A1";
+            lnodeNew[position].lastModified = t;
         }
     }
     
 }
 
 /*we suppose the given cells is in 0 state*/
-void rule6(Cell *lnode, int position, int t)
+void rule6(Cell *lnodeNew, int position, int t)
 {
-    lnode[position].state = "T";
-    lnode[position].lastModified = t;
+    lnodeNew[position].state = "T";
+    lnodeNew[position].lastModified = t;
 }
 
-void finalReport(Cell *lnode, int t)
+void finalReport(Cell *lnode, int t, int i)
 {
     int a1, T, d, a2, a0, nothing;
     a1 = T = d = a2 = a0 = nothing = 0;
@@ -311,12 +349,21 @@ void finalReport(Cell *lnode, int t)
         }
     }
 
+    a1Global = ( a1Global* i + a1 )/(i+1);
+    a2Global =( a2Global* i + a2 )/(i+1);
+    a0Global =( a0Global* i + a0 )/(i+1);
+    TGlobal =( TGlobal* i + T )/(i+1);
+    nothingGlobal =( nothingGlobal * i + nothing )/(i+1);
+    dGlobal =( dGlobal* i + d )/(i+1);
+    tGlobal =( tGlobal* i + t )/(i+1);
+
     cout << "report" << endl;
-    cout << "A1: " << a1 << endl;
-    cout << "A2: " << a2 << endl;
-    cout << "A0: " << a0 << endl;
-    cout << "T: " << T << endl;
-    cout << "0: " << nothing << endl;
-    cout << "D: " << d << endl;
-    cout << "tiempo: " << t << endl;
+    cout << "A1: " << a1Global << endl;
+    cout << "A2: " << a2Global << endl;
+    cout << "A0: " << a0Global << endl;
+    cout << "T: " << TGlobal << endl;
+    cout << "0: " << nothingGlobal << endl;
+    cout << "D: " << dGlobal << endl;
+    cout << "tiempo: " << tGlobal << endl;
+    cout << endl;
 }
