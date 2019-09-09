@@ -7,12 +7,12 @@
 #include <random>
 
 #define RUNS 625
-#define MATRIXSIZE 100
+#define MATRIXSIZE 3
 #define PHIV 0.005
 #define R 4
 #define PINF 0.999
 #define T1 4
-#define PREM 0.9
+#define PREM 0.0
 #define PREPL 0.99
 #define PACT 0.0025
 #define T2 30
@@ -39,7 +39,8 @@ double randomGenerator()
 {
     // :(
     //min + (double)rand() * (max - min) / (double)RAND_MAX;
-    return (double)rand() / (double)RAND_MAX;
+    double var = (double)rand() / (double)RAND_MAX;
+    return var;
 }
 
 int main()
@@ -47,8 +48,9 @@ int main()
     //create matrix
     Cell *lnode = new Cell[MATRIXSIZE * MATRIXSIZE];
     //start random for matrix state
-    srand(190398);
+    srand(time(NULL));
     //random to initialize the matrix
+    
     for (int i = 0; i < MATRIXSIZE * MATRIXSIZE; i++)
     {
         if (randomGenerator() <= PHIV)
@@ -60,6 +62,7 @@ int main()
             lnode[i] = {"T", 0};
         }
     }
+
     //initial proportion of the matrix
     int a1 = 0;
     int T = 0;
@@ -79,10 +82,10 @@ int main()
     cout << "T: " << T << endl;
 
     //apply rules
-    for (int i = 0; i < RUNS; i++)
+    for (int i = 1; i <= RUNS; i++)
     {
-        //cout << "step: " << i << endl;
         applyRules(lnode, i);
+        
     }
     finalReport(lnode,RUNS);
     //final report
