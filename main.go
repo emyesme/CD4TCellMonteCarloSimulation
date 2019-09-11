@@ -17,7 +17,7 @@ const (
 
 	yearsInWeeks = 625
 
-	pHIV = 0.01 // 0.005
+	pHIV = 0.005
 
 	runs = 100
 )
