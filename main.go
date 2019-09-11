@@ -35,6 +35,8 @@ func main() {
 		globalFirstWeeksResume = append(globalFirstWeeksResume, model.NodeOverview{NodeSize: lNodeSize})
 	}
 
+	var lastWeek, lastYear model.NodeOverview
+
 	for i := 0; i < runs; i++ {
 		rand.Seed(time.Now().UnixNano())
 
@@ -50,6 +52,8 @@ func main() {
 			globalYearsResume[j].Empty = (globalYearsResume[j].Empty*float32(i) + yearsResume[j].Empty) / float32(i+1)
 		}
 
+		lastYear = yearsResume[len(yearsResume)-1]
+
 		for j := 0; j < len(firstWeeksResume); j++ {
 			globalFirstWeeksResume[j].A0 = (globalFirstWeeksResume[j].A0*float32(i) + firstWeeksResume[j].A0) / float32(i+1)
 			globalFirstWeeksResume[j].A1 = (globalFirstWeeksResume[j].A1*float32(i) + firstWeeksResume[j].A1) / float32(i+1)
@@ -58,6 +62,8 @@ func main() {
 			globalFirstWeeksResume[j].D = (globalFirstWeeksResume[j].D*float32(i) + firstWeeksResume[j].D) / float32(i+1)
 			globalFirstWeeksResume[j].Empty = (globalFirstWeeksResume[j].Empty*float32(i) + firstWeeksResume[j].Empty) / float32(i+1)
 		}
+
+		lastWeek = firstWeeksResume[len(firstWeeksResume)-1]
 	}
 
 	spew.Dump(globalYearsResume)
@@ -90,11 +96,11 @@ func main() {
 		Series: []chart.Series{
 			chart.AnnotationSeries{
 				Annotations: []chart.Value2{
-					{XValue: 12.0, YValue: ValuesT[12], Label: "T"},
-					{XValue: 12.0, YValue: ValuesA1PlusA2[12], Label: "A1 + A2"},
-					{XValue: 12.0, YValue: ValuesA0[12], Label: "A0"},
-					{XValue: 12.0, YValue: ValuesD[12], Label: "D"},
-					{XValue: 12.0, YValue: ValuesEmpty[12], Label: "Espacios vacíos"},
+					{XValue: 12.0, YValue: ValuesT[12], Label: fmt.Sprintf("T %f", lastYear.T)},
+					{XValue: 12.0, YValue: ValuesA1PlusA2[12], Label: fmt.Sprintf("A1 + A2 %f", lastYear.A1+lastYear.A2)},
+					{XValue: 12.0, YValue: ValuesA0[12], Label: fmt.Sprintf("A0 %f", lastYear.A0)},
+					{XValue: 12.0, YValue: ValuesD[12], Label: fmt.Sprintf("D %f", lastYear.D)},
+					{XValue: 12.0, YValue: ValuesEmpty[12], Label: fmt.Sprintf("Espacios vacíos %f", lastYear.Empty)},
 				},
 			},
 			chart.ContinuousSeries{
@@ -150,11 +156,11 @@ func main() {
 		Series: []chart.Series{
 			chart.AnnotationSeries{
 				Annotations: []chart.Value2{
-					{XValue: 15.0, YValue: ValuesT[15], Label: "T"},
-					{XValue: 15.0, YValue: ValuesA1PlusA2[15], Label: "A1 + A2"},
-					{XValue: 15.0, YValue: ValuesA0[15], Label: "A0"},
-					{XValue: 15.0, YValue: ValuesD[15], Label: "D"},
-					{XValue: 15.0, YValue: ValuesEmpty[15], Label: "Espacios vacíos"},
+					{XValue: 15.0, YValue: ValuesT[15], Label: fmt.Sprintf("T %f", lastWeek.T)},
+					{XValue: 15.0, YValue: ValuesA1PlusA2[15], Label: fmt.Sprintf("A1 + A2 %f", lastYear.A1+lastWeek.A2)},
+					{XValue: 15.0, YValue: ValuesA0[15], Label: fmt.Sprintf("A0 %f", lastWeek.A0)},
+					{XValue: 15.0, YValue: ValuesD[15], Label: fmt.Sprintf("D %f", lastWeek.D)},
+					{XValue: 15.0, YValue: ValuesEmpty[15], Label: fmt.Sprintf("Espacios vacíos %f", lastWeek.Empty)},
 				},
 			},
 			chart.ContinuousSeries{
