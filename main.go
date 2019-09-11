@@ -38,7 +38,7 @@ func main() {
 	var lastWeek, lastYear model.NodeOverview
 
 	for i := 0; i < runs; i++ {
-		fmt.Printf("RUN %d", i)
+		fmt.Printf("RUN %d\n", i)
 		rand.Seed(time.Now().UnixNano())
 
 		lNode := model.NewInfectedLNode(rand.Float32, lNodeSize, pHIV)
