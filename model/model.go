@@ -1,6 +1,9 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 // State ...
 type State string
@@ -115,7 +118,11 @@ func (n *LNode) getCellsCopy() []Cell {
 }
 
 // Run ...
-func (n *LNode) Run(steps int, randomGen func() float32) {
+func (n *LNode) Run(steps int, randomGen func() float32) []NodeOverview {
+	yearsResume := []NodeOverview{}
+
+	yearsResume = append(yearsResume, n.GetNodeOverview())
+
 	for time := 1; time <= steps; time++ {
 		cellsCopy := n.getCellsCopy()
 		for i := 0; i < n.Size; i++ {
@@ -165,52 +172,64 @@ func (n *LNode) Run(steps int, randomGen func() float32) {
 					continue
 				}
 			}
+
 		}
 
 		n.Cells = &cellsCopy
+
+		if math.Mod(float64(time), 52.0) == 0 {
+			yearsResume = append(yearsResume, n.GetNodeOverview())
+		}
 	}
+
+	return yearsResume
 }
 
 // NodeOverview ...
 type NodeOverview struct {
-	Paramenters map[State]float32
-	NodeSize    float32
+	A0       float32
+	A1       float32
+	A2       float32
+	T        float32
+	D        float32
+	Empty    float32
+	NodeSize float32
 }
 
 // Print ...
 func (o NodeOverview) Print() {
 	fmt.Println("NODE OVERVIEW")
-	fmt.Printf("State A0: %f - %f\n", o.Paramenters[StateA0], (o.Paramenters[StateA0]/(o.NodeSize*o.NodeSize))*100)
-	fmt.Printf("State A1: %f - %f\n", o.Paramenters[StateA1], (o.Paramenters[StateA1]/(o.NodeSize*o.NodeSize))*100)
-	fmt.Printf("State A2: %f - %f\n", o.Paramenters[StateA2], (o.Paramenters[StateA2]/(o.NodeSize*o.NodeSize))*100)
-	fmt.Printf("State T: %f - %f\n", o.Paramenters[StateT], (o.Paramenters[StateT]/(o.NodeSize*o.NodeSize))*100)
-	fmt.Printf("State D: %f - %f\n", o.Paramenters[StateD], (o.Paramenters[StateD]/(o.NodeSize*o.NodeSize))*100)
-	fmt.Printf("State empty: %f - %f\n", o.Paramenters[StateEmpty], (o.Paramenters[StateEmpty]/(o.NodeSize*o.NodeSize))*100)
+	fmt.Printf("State A0: %f - %f\n", o.A0, (o.A0/(o.NodeSize*o.NodeSize))*100)
+	fmt.Printf("State A1: %f - %f\n", o.A1, (o.A1/(o.NodeSize*o.NodeSize))*100)
+	fmt.Printf("State A2: %f - %f\n", o.A2, (o.A2/(o.NodeSize*o.NodeSize))*100)
+	fmt.Printf("State T: %f - %f\n", o.T, (o.T/(o.NodeSize*o.NodeSize))*100)
+	fmt.Printf("State D: %f - %f\n", o.D, (o.D/(o.NodeSize*o.NodeSize))*100)
+	fmt.Printf("State empty: %f - %f\n", o.Empty, (o.Empty/(o.NodeSize*o.NodeSize))*100)
 }
 
 // GetNodeOverview ...
 func (n *LNode) GetNodeOverview() NodeOverview {
-	overview := NodeOverview{map[State]float32{}, (float32)(n.Size)}
+	overview := NodeOverview{NodeSize: float32(n.Size)}
 	for i := 0; i < n.Size; i++ {
 		for j := 0; j < n.Size; j++ {
 			switch n.getCell(i, j).State {
 			case StateT:
-				overview.Paramenters[StateT] += 1.0
+				overview.T += 1.0
 
 			case StateA1:
-				overview.Paramenters[StateA1] += 1.0
+				overview.A1 += 1.0
 
 			case StateA2:
-				overview.Paramenters[StateA2] += 1.0
+				overview.A2 += 1.0
 
 			case StateA0:
-				overview.Paramenters[StateA0] += 1.0
+				overview.A0 += 1.0
 
 			case StateD:
-				overview.Paramenters[StateD] += 1.0
+				overview.D += 1.0
 
 			case StateEmpty:
-				overview.Paramenters[StateEmpty] += 1.0
+				overview.Empty += 1.0
 			}
 		}
 	}

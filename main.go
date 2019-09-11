@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"os"
 	"time"
-	"univalle/sim/project/model"
+	"univalle/sim/CD4TCellMonteCarloSimulation/model"
 
 	chart "github.com/wcharczuk/go-chart"
 )
