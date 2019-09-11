@@ -7,6 +7,5 @@
 	Emily Esmeralda Carvajal Camelo
 
 ```
-g++ -o exe project.cpp
-./exe
+go run main.go
 ```

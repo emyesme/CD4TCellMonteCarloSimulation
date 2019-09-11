@@ -118,18 +118,14 @@ func (n *LNode) getCellsCopy() []Cell {
 }
 
 // Run ...
-func (n *LNode) Run(steps int, randomGen func() float32) ([]NodeOverview, []NodeOverview) {
+func (n *LNode) Run(steps int, randomGen func() float32) []NodeOverview {
 	yearsResume := []NodeOverview{}
-	firstWeeksResume := []NodeOverview{}
-
 	yearsResume = append(yearsResume, n.GetNodeOverview())
-	firstWeeksResume = append(yearsResume, n.GetNodeOverview())
 
 	for time := 1; time <= steps; time++ {
 		cellsCopy := n.getCellsCopy()
 		for i := 0; i < n.Size; i++ {
 			for j := 0; j < n.Size; j++ {
-				// TODO: fix the lastUpdate
 				if n.getCell(i, j).State == StateT {
 					cellsCopy[i*n.Size+j].State = rule1(randomGen, n, i, j)
 					if cellsCopy[i*n.Size+j].State != StateT {
@@ -183,13 +179,9 @@ func (n *LNode) Run(steps int, randomGen func() float32) ([]NodeOverview, []Node
 			yearsResume = append(yearsResume, n.GetNodeOverview())
 		}
 
-		if steps < 15 {
-			firstWeeksResume = append(firstWeeksResume, n.GetNodeOverview())
-		}
-
 	}
 
-	return firstWeeksResume, yearsResume
+	return yearsResume
 }
 
 // NodeOverview ...
